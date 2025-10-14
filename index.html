@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>C4 Explosion: Life Edition — ULTRA IGNITION</title>
+<meta name="theme-color" content="#050505" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#050505; --ink:#f6f6f7; --muted:#cfcfd4; --lava:#ff3b00; --ember:#ff9a00; --gold:#f6cf77; --line:rgba(255,255,255,.12) }
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,sans-serif}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+  .section{padding:84px 0; scroll-margin-top:96px}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 14px 44px rgba(0,0,0,.35)}
+  .subtitle{color:var(--muted);font-size:clamp(14px,1.85vw,18px)}
+  body::before{content:"";position:fixed;inset:0;z-index:-4;pointer-events:none;background:
+    radial-gradient(70% 60% at 70% -10%, rgba(255,120,20,.22), transparent 60%),
+    radial-gradient(60% 50% at 25% 0%, rgba(255,60,0,.20), transparent 65%),
+    linear-gradient(180deg,#000 0%,#0a0a0a 45%,#000 100%)}
+  body::after{content:"";position:fixed;inset:0;z-index:-3;pointer-events:none;opacity:.6;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 1px,transparent 1px 3px);mix-blend-mode:overlay;animation:emberGlow 6s ease-in-out infinite}
+  @keyframes emberGlow{0%,100%{opacity:.45}50%{opacity:.7}}
+  .nav{position:sticky;top:0;z-index:70;backdrop-filter:blur(8px);background:rgba(0,0,0,.6);border-bottom:1px solid var(--line)}
+  .nav-inner{height:72px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:800}
+  .brand img{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);object-fit:contain;background:#111}
+  .nav-links{display:flex;gap:20px;font-weight:600;font-size:14px}
+  .nav a:hover{color:var(--gold)}
+  .hero{position:relative;min-height:98vh;display:flex;align-items:center;overflow:hidden}
+  #boom{position:absolute;inset:0;z-index:0;pointer-events:none}
+  #embers{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.6}
+  .hero .wrap{position:relative;z-index:2}
+  .hero-grid{display:grid;gap:32px;grid-template-columns:1fr}
+  @media(min-width:980px){.hero-grid{grid-template-columns:1.15fr .85fr;align-items:center}}
+  .kicker{text-transform:uppercase;letter-spacing:.24em;color:var(--gold);font-weight:800;font-size:12px}
+  .c4{font-family:'Anton',sans-serif;text-transform:uppercase;letter-spacing:.7px;line-height:.92;font-size:clamp(56px,8vw,126px);
+      background:linear-gradient(180deg,#fff,#ffe1b5 45%,#ffa337);-webkit-background-clip:text;background-clip:text;color:transparent;
+      background-size:200% 200%; animation: shimmer 5s linear infinite;
+      text-shadow:0 0 60px rgba(255,120,0,.45),0 10px 0 rgba(0,0,0,.55)}
+  @keyframes shimmer{0%{background-position:0% 0%}100%{background-position:100% 100%}}
+  .burst{height:6px;width:220px;border-radius:999px;background:linear-gradient(90deg,var(--lava),var(--ember),transparent);box-shadow:0 0 52px rgba(255,90,0,.75);margin:14px 0}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 22px;border-radius:16px;font-weight:900;letter-spacing:.02em;position:relative;overflow:hidden}
+  .btn-primary{background:radial-gradient(140% 160% at 50% 10%, var(--ember) 0%, var(--lava) 60%, #a10 100%);color:#0b0b0b;box-shadow:0 30px 90px rgba(255,80,0,.55)}
+  .btn-primary::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.35),transparent 25%,transparent 75%,rgba(255,255,255,.28));mix-blend-mode:overlay;opacity:.35}
+  .btn-ghost{border:1px solid var(--line)}
+  @keyframes pulse{0%{transform:translateY(0);box-shadow:0 30px 90px rgba(255,80,0,.55)}50%{transform:translateY(-1px);box-shadow:0 36px 110px rgba(255,80,0,.7)}100%{transform:translateY(0);box-shadow:0 30px 90px rgba(255,80,0,.55)}} .pulse{animation:pulse 2.4s ease-in-out infinite}
+  .grid3{display:grid;gap:18px;grid-template-columns:1fr}
+  @media(min-width:900px){.grid3{grid-template-columns:repeat(3,1fr)}}
+  .grid2{display:grid;gap:18px;grid-template-columns:1fr}
+  @media(min-width:900px){.grid2{grid-template-columns:repeat(2,1fr)}}
+  .row{display:flex;gap:14px;align-items:flex-start}
+  .time{color:var(--gold);min-width:130px;font-weight:900}
+  .stitle{text-align:center;margin-bottom:24px}
+  .stitle h2{font-family:'Anton',sans-serif;letter-spacing:.6px;text-transform:uppercase;font-size:clamp(32px,4.8vw,60px);line-height:1.04}
+  .underline{width:180px;height:7px;border-radius:999px;background:linear-gradient(90deg,var(--lava),var(--ember),transparent);box-shadow:0 0 48px rgba(255,90,0,.75);margin:12px auto 0}
+  .fissure{height:2px;background:linear-gradient(90deg,transparent, rgba(255,120,0,.55), transparent);box-shadow:0 0 30px rgba(255,90,0,.5);margin:30px 0;opacity:.9}
+  .sound-toggle{position:fixed;right:18px;bottom:18px;z-index:90;border:1px solid var(--line);background:rgba(0,0,0,.65);color:var(--ink);border-radius:14px;padding:10px 14px;font-weight:800}
+  .fi{width:100%;padding:12px 14px;border-radius:12px;background:#141414;border:1px solid var(--line);color:#eee}
+  .fineprint{font-size:12px;color:#d6d6da;opacity:.9;margin-top:6px}
+  footer{border-top:1px solid var(--line);color:#cfcfd4}
+</style>
+</head>
+<body>
+
+<canvas id="embers"></canvas>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#">
+      <img id="brandLogo" src="" alt="Diamonds &amp; Pearls logo" />
+      <span>Diamonds &amp; Pearls Chapter Inc.</span>
+    </a>
+    <nav class="nav-links"><a href="#about">About</a><a href="#schedule">Schedule</a><a href="#packages">Packages</a><a href="#register">Register</a><a href="#venue">Venue</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></nav>
+  </div>
+</header>
+
+<section class="hero">
+  <canvas id="boom" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="kicker">June 5–7, 2026 • Los Angeles, CA</div>
+        <h1 class="c4">C4 EXPLOSION</h1>
+        <div class="burst"></div>
+        <p class="subtitle" style="max-width:780px">Volcano-level energy. Precision coaching. A weekend to blow past limits — <b>Choice</b>, <b>Challenge</b>, <b>Chance</b>, <b>Change</b>.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:16px">
+          <a href="#register" class="btn btn-primary pulse" onclick="try{document.getElementById('register').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}; this.blur(); if(location.hash!=='#register'){ location.hash = 'register'; }">RSVP NOW</a>
+          <a href="#schedule" class="btn btn-ghost">SEE SCHEDULE</a>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 6px;font-family:Anton,sans-serif;letter-spacing:.6px">What You’ll Experience</h3>
+        <p class="subtitle" style="margin:0 0 8px">Explosion Seminar • Masquerade Gala • Madame Tussauds</p>
+        <ul class="subtitle" style="line-height:1.7;margin:0;padding-left:18px"><li>High-impact sessions and community</li><li>Payment plan available • RSVP by <b>Dec 6, 2025</b></li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="fissure"></div>
+
+<section id="about" class="section">
+  <div class="wrap stitle"><h2>Ignite. Break. Build.</h2><div class="underline"></div><p class="subtitle" style="max-width:860px;margin:12px auto 0">The mission: decisive <b>Choices</b>, embraced <b>Challenges</b>, bold <b>Chances</b>, lasting <b>Change</b>. Luxury experience — explosive results.</p></div>
+</section>
+
+<div class="fissure"></div>
+
+<section id="schedule" class="section">
+  <div class="wrap stitle"><h2>Weekend Itinerary</h2><div class="underline"></div></div>
+  <div class="wrap grid3">
+    <div class="card"><h3>Friday, June 5</h3><div class="row"><div class="time">3:00–6:00 PM</div><div>Hotel Check-In & Registration</div></div><div class="row" style="margin-top:8px"><div class="time">6:30–8:00 PM</div><div>Meet & Greet + Axe Throwing</div></div></div>
+    <div class="card"><h3>Saturday, June 6</h3><div class="row"><div class="time">8:00–9:00 AM</div><div>Breakfast & Networking</div></div><div class="row" style="margin-top:8px"><div class="time">9:00 AM – 12:00 PM</div><div>C4 Explosion Seminar</div></div><div class="row" style="margin-top:8px"><div class="time">7:00–11:00 PM</div><div>Masquerade Party Gala</div></div></div>
+    <div class="card"><h3>Sunday, June 7</h3><div class="row"><div class="time">9:00–10:00 AM</div><div>Breakfast & Reflection</div></div><div class="row" style="margin-top:8px"><div class="time">10:30 AM – 12:30 PM</div><div>Madame Tussauds Wax Museum</div></div><div class="row" style="margin-top:8px"><div class="time">12:45–1:30 PM</div><div>Farewells & Check-Out</div></div></div>
+  </div>
+</section>
+
+<div class="fissure"></div>
+
+<section id="packages" class="section">
+  <div class="wrap stitle"><h2>Packages</h2><div class="underline"></div></div>
+  <div class="wrap grid2">
+    <div class="card"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px"><h3 style="margin:0">With Flight</h3><div style="font-weight:900;font-size:34px;background:linear-gradient(180deg,#fff,#ffdca7);-webkit-background-clip:text;background-clip:text;color:transparent">$1200</div></div><ul class="subtitle" style="line-height:1.7"><li>Round-trip flight</li><li>Hotel (2 nights)</li><li>Seminar access</li><li>Masquerade Gala ticket</li><li>Madame Tussauds entry</li></ul><p class="subtitle" style="margin-top:6px;opacity:.9">🔥 Flights are <b>not transferable or refundable</b>. Please follow your airline’s guidelines for any potential refund or credit options.</p></div>
+    <div class="card"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px"><h3 style="margin:0">Without Flight</h3><div style="font-weight:900;font-size:34px;background:linear-gradient(180deg,#fff,#ffdca7);-webkit-background-clip:text;background-clip:text;color:transparent">$800</div></div><ul class="subtitle" style="line-height:1.7"><li>Hotel (2 nights)</li><li>Seminar access</li><li>Masquerade Gala ticket</li><li>Madame Tussauds entry</li></ul></div>
+  </div>
+</section>
+
+<div class="fissure"></div>
+
+<section id="register" class="section">
+  <div class="wrap stitle">
+    <h2>RSVP — On-Site Registration</h2>
+    <div class="underline"></div>
+    <p class="subtitle" style="margin-top:10px">Complete the form below. You’ll get a downloadable CSV receipt, and you can also email a copy directly to us.</p>
+  </div>
+
+  <!-- (Admin panel removed on public site) -->
+
+  <div class="wrap" style="max-width:980px">
+    <div class="card" style="padding:26px">
+      <form id="c4Form" onsubmit="return false" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="grid-column:1 / -1"><h3 style="margin:0;font-family:Anton,sans-serif;letter-spacing:.4px">Attendee Info</h3></div>
+        <div><label class="subtitle">First Name<br><input required name="first" class="fi" placeholder="First name"></label></div>
+        <div><label class="subtitle">Last Name<br><input required name="last" class="fi" placeholder="Last name"></label></div>
+        <div><label class="subtitle">Email<br><input required type="email" name="email" class="fi" placeholder="you@email.com"></label></div>
+        <div><label class="subtitle">Phone<br><input required name="phone" class="fi" placeholder="(###) ###-####"></label></div>
+
+        <div style="grid-column:1 / -1;margin-top:6px"><h3 style="margin:0;font-family:Anton,sans-serif;letter-spacing:.4px">Your Package</h3></div>
+        <div>
+          <label class="subtitle">Select Package<br>
+            <select name="package" class="fi" required>
+              <option value="">Choose…</option>
+              <option>With Flight — $1200</option>
+              <option>Without Flight — $800</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label class="subtitle">Guests (if any)<br>
+            <input type="number" min="0" max="5" value="0" name="guests" class="fi">
+          </label>
+        </div>
+
+        <div style="grid-column:1 / -1;margin-top:6px"><h3 style="margin:0;font-family:Anton,sans-serif;letter-spacing:.4px">Preferences</h3></div>
+        <div>
+          <label class="subtitle">Dietary Needs<br>
+            <select name="diet" class="fi">
+              <option>None</option><option>Vegetarian</option><option>Vegan</option><option>Gluten-Free</option><option>Other</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label class="subtitle">Payment Plan<br>
+            <select name="plan" class="fi">
+              <option>No</option><option>Yes</option>
+            </select>
+          </label>
+        </div>
+        <div style="grid-column:1 / -1">
+          <label class="subtitle">Notes (optional)<br>
+            <textarea name="notes" class="fi" rows="3" placeholder="Anything else we should know?"></textarea>
+          </label>
+        </div>
+
+        <div style="grid-column:1 / -1;margin-top:6px">
+          <label class="subtitle" style="display:flex;align-items:flex-start;gap:10px">
+            <input type="checkbox" required name="agree">
+            <span>I understand tickets are non-refundable after the RSVP deadline and are transferable for event access only. <b>Flights are not transferable or refundable</b>. Please follow your airline’s guidelines for any potential refund or credit options.</span>
+          </label>
+        </div>
+
+        <div style="grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:12px;margin-top:8px">
+          <button id="submitBtn" class="btn btn-primary pulse" type="button">Submit & Download CSV</button>
+          <button id="emailBtn" class="btn btn-ghost" type="button">Email a Copy</button>
+          <button id="clearBtn" class="btn btn-ghost" type="button">Clear</button>
+        </div>
+      </form>
+    </div>
+    <p class="fineprint" style="margin-top:10px">Submitting downloads a local CSV receipt to your device. For questions, email <a href="mailto:diamondspearlsunite@gmail.com">diamondspearlsunite@gmail.com</a> or call 216-800-7060.</p>
+  </div>
+</section>
+
+<div class="fissure"></div>
+
+<section id="venue" class="section"><div class="wrap stitle"><h2>Venue</h2><div class="underline"></div><p class="subtitle">Los Angeles, CA • Hotel details provided upon RSVP</p></div></section>
+
+<div class="fissure"></div>
+
+<section id="faq" class="section">
+  <div class="wrap stitle"><h2>FAQ</h2><div class="underline"></div></div>
+  <div class="wrap grid3">
+    <details class="card"><summary style="cursor:pointer;font-weight:800">What does C4 stand for?</summary><p class="subtitle">Choice, Challenge, Chance, and Change — the four stages of breakthrough you'll experience.</p></details>
+    <details class="card"><summary style="cursor:pointer;font-weight:800">What’s included in the packages?</summary><p class="subtitle">Both packages include hotel, seminar access, Masquerade Gala ticket, and Madame Tussauds entry. The flight package adds round-trip airfare.</p></details>
+    <details class="card" open><summary style="cursor:pointer;font-weight:800">Refund policy?</summary><p class="subtitle">RSVP by the deadline. After that date, tickets are non-refundable but are transferable for <b>event access only</b>.<br><b>Flights are not transferable or refundable.</b> Please follow your airline’s guidelines for any potential refund or credit options.</p></details>
+  </div>
+</section>
+
+<div class="fissure"></div>
+
+<section id="contact" class="section"><div class="wrap stitle"><h2>Contact</h2><div class="underline"></div></div><div class="wrap grid3"><div class="card"><h3 style="margin:0 0 6px">Call Us</h3><p class="subtitle">216-800-7060</p></div><div class="card"><h3 style="margin:0 0 6px">Email</h3><p class="subtitle"><a href="mailto:diamondspearlsunite@gmail.com">diamondspearlsunite@gmail.com</a></p></div><div class="card"><h3 style="margin:0 0 6px">RSVP Deadline</h3><p class="subtitle">December 6, 2025</p></div></div></section>
+
+<button id="soundToggle" class="sound-toggle">🔊 Sound: ON</button>
+
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;gap:12px;padding:18px 0;font-size:14px;opacity:.85;flex-wrap:wrap">
+    <div>© <span id="yr"></span> Diamonds &amp; Pearls Chapter Inc.</div>
+    <div>Presented by Diamonds &amp; Pearls Chapter Inc.</div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // Smooth scroll
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (a) {
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    }
+  });
+
+  // Ember drift bg
+  (function(){
+    const c = document.getElementById('embers'); if (!c) return;
+    const x = c.getContext('2d'); let w,h,dpr;
+    function resize(){ dpr = window.devicePixelRatio || 1; w = c.clientWidth = window.innerWidth; h = c.clientHeight = window.innerHeight; c.width = w*dpr; c.height = h*dpr; x.setTransform(dpr,0,0,dpr,0,0); }
+    window.addEventListener('resize', resize); resize();
+    const N = 200, E = [];
+    for (let i=0;i<N;i++) E.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*2+0.6, vy: - (Math.random()*0.25+0.05), vx: (Math.random()*0.2 - 0.1), a: Math.random()*0.5+0.15 });
+    function step(){ x.clearRect(0,0,w,h); for (const p of E) { p.x += p.vx; p.y += p.vy; if (p.y < -10) { p.y = h+10; p.x = Math.random()*w; } x.beginPath(); x.arc(p.x,p.y,p.r,0,Math.PI*2); x.fillStyle='rgba(255,150,40,'+p.a+')'; x.fill(); } requestAnimationFrame(step); } step();
+  })();
+
+  // Hero explosion
+  (function(){
+    const c = document.getElementById('boom'); if (!c) return;
+    const x = c.getContext('2d'); let w,h,dpr;
+    function resize(){ dpr = window.devicePixelRatio || 1; w = c.clientWidth = c.parentElement.clientWidth; h = c.clientHeight = Math.max(560, window.innerHeight*0.98); c.width = w*dpr; c.height = h*dpr; x.setTransform(dpr,0,0,dpr,0,0); }
+    window.addEventListener('resize', resize); resize();
+    const CX = () => w*0.5, CY = () => h*0.75-140;
+    const sparks = [];
+    function burst(count, mul) { for (let i=0;i<count;i++) { const a = Math.random()*Math.PI*2; const s = (Math.random()*3.2+1.6) * (mul||1); sparks.push({x:CX(), y:CY(), vx:Math.cos(a)*s, vy:Math.sin(a)*s - 0.4, life: Math.random()*150+110, r: Math.random()*2.8+0.8}); } }
+    burst(420,1.7); setTimeout(()=>burst(220,1.3),200); setTimeout(()=>burst(200,1.1),420);
+    let t=0;
+    function step(){ t+=1; const g = x.createLinearGradient(0,0,0,h); g.addColorStop(0,'#070709'); g.addColorStop(1,'#000'); x.fillStyle=g; x.fillRect(0,0,w,h);
+      const shock = Math.min(1, t/150); const R = shock*(Math.max(w,h)*1.1); const cg = x.createRadialGradient(CX(),CY(),0,CX(),CY(),R);
+      cg.addColorStop(0,'rgba(255,200,80,0.9)'); cg.addColorStop(0.22,'rgba(255,120,0,0.62)'); cg.addColorStop(0.58,'rgba(255,60,0,0.26)'); cg.addColorStop(1,'rgba(0,0,0,0)');
+      x.fillStyle=cg; x.beginPath(); x.arc(CX(),CY(),R,0,Math.PI*2); x.fill();
+      for (let i=sparks.length-1;i>=0;i--) { const p=sparks[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=0.012; p.life-=1; if (p.life<=0) { sparks.splice(i,1); continue; } const a=Math.max(0,Math.min(1,p.life/150)); x.beginPath(); x.arc(p.x,p.y,p.r,0,Math.PI*2); x.fillStyle='rgba(255,150,40,'+(0.15+a*0.68)+')'; x.fill(); }
+      x.fillStyle='#060606'; x.beginPath(); const base=h*0.82; x.moveTo(0,base); x.lineTo(w*0.4,base-90); x.lineTo(w*0.5,base-190); x.lineTo(w*0.6,base-90); x.lineTo(w,base); x.lineTo(w,h); x.lineTo(0,h); x.closePath(); x.fill();
+      requestAnimationFrame(step); } step();
+    const hero = document.querySelector('.hero'); hero.style.transition='transform 100ms ease'; let shakes=14, amp=3; const shaker=setInterval(()=>{ hero.style.transform='translate(' + ((Math.random()*2-1)*amp) + 'px,' + ((Math.random()*2-1)*amp) + 'px)'; if(--shakes<=0){ clearInterval(shaker); hero.style.transform='translate(0,0)'; } }, 80);
+  })();
+
+  // Registration: CSV + Email + optional webhook
+  (function(){
+    function csvEscape(v){ if(v==null) return ''; v = String(v); if(/[",\n]/.test(v)) return '"' + v.replace(/"/g,'""') + '"'; return v; }
+    function makeCSV(row){
+      const headers = ['timestamp','first','last','email','phone','package','guests','diet','plan','notes'];
+      return headers.join(',') + '\n' + [
+        new Date().toISOString(),
+        row.first, row.last, row.email, row.phone, row.package, row.guests, row.diet, row.plan, row.notes
+      ].map(csvEscape).join(',') + '\n';
+    }
+    function download(filename, text){
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([text], {type:'text/csv'}));
+      a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    function readForm(){
+      const f = document.getElementById('c4Form');
+      return {
+        first: f.first.value.trim(),
+        last: f.last.value.trim(),
+        email: f.email.value.trim(),
+        phone: f.phone.value.trim(),
+        package: f.package.value,
+        guests: f.guests.value || '0',
+        diet: f.diet.value,
+        plan: f.plan.value,
+        notes: f.notes.value.trim(),
+        agree: f.agree.checked
+      };
+    }
+    function validate(r){
+      if(!r.first || !r.last || !r.email || !r.phone || !r.package) return false;
+      if(!document.getElementById('c4Form').agree.checked) return false;
+      return true;
+    }
+
+    // Read endpoint + logo saved via admin.html
+    const ENDPOINT_KEY = 'C4_RSVP_ENDPOINT';
+    const LOGO_KEY = 'C4_BRAND_LOGO_DATAURI';
+    const savedLogo = localStorage.getItem(LOGO_KEY);
+    if (savedLogo) document.getElementById('brandLogo').src = savedLogo;
+
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+      const r = readForm();
+      if(!validate(r)){ alert('Please complete all required fields and accept the policy.'); return; }
+      const csv = makeCSV(r);
+      const id = Math.random().toString(36).slice(2,7).toUpperCase();
+      download('C4_RSVP_' + r.last + '_' + id + '.csv', csv);
+      alert('Thanks! Your RSVP CSV receipt was downloaded.');
+
+      // Optional POST to endpoint
+      const endpoint = localStorage.getItem(ENDPOINT_KEY);
+      if (endpoint) {
+        try {
+          await fetch(endpoint, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              timestamp: new Date().toISOString(),
+              ...r,
+              policy_agreed: r.agree,
+              source: 'C4 Explosion — Public Site'
+            }),
+            mode: 'cors'
+          });
+        } catch(e){ console.warn('RSVP store error', e); }
+      }
+    });
+
+    document.getElementById('emailBtn').addEventListener('click', () => {
+      const r = readForm();
+      if(!validate(r)){ alert('Please complete all required fields and accept the policy.'); return; }
+      const subject = encodeURIComponent('C4 Explosion RSVP — ' + r.first + ' ' + r.last);
+      const body = encodeURIComponent(
+        'Name: ' + r.first + ' ' + r.last + '\n' +
+        'Email: ' + r.email + '\n' +
+        'Phone: ' + r.phone + '\n' +
+        'Package: ' + r.package + '\n' +
+        'Guests: ' + r.guests + '\n' +
+        'Diet: ' + r.diet + '\n' +
+        'Payment Plan: ' + r.plan + '\n' +
+        'Notes: ' + r.notes + '\n' +
+        '\nI acknowledge the refund policy and flight conditions.'
+      );
+      window.location.href = 'mailto:diamondspearlsunite@gmail.com?subject=' + subject + '&body=' + body;
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      document.getElementById('c4Form').reset();
+    });
+  })();
+
+  // Rumble/audio
+  (function(){
+    let audioEnabled = true, played = false, ctx = null;
+    const btn = document.getElementById('soundToggle');
+    function ensureCtx(){ if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); return ctx; }
+    function boom(){
+      if (!audioEnabled) return;
+      const ctx = ensureCtx();
+      const t0 = ctx.currentTime;
+      const osc = ctx.createOscillator(); osc.type='sine'; osc.frequency.setValueAtTime(55,t0); osc.frequency.exponentialRampToValueAtTime(28,t0+1.2); osc.frequency.exponentialRampToValueAtTime(36,t0+3.8);
+      const og = ctx.createGain(); og.gain.setValueAtTime(0.55,t0); og.gain.exponentialRampToValueAtTime(0.0001,t0+4.2);
+      const bufferSize = ctx.sampleRate * 4.0; const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate); const data = buffer.getChannelData(0);
+      let lastOut = 0.0; for (let i=0;i<bufferSize;i++){ const white = Math.random()*2-1; data[i] = (lastOut + 0.02*white) / 1.02; lastOut = data[i]; }
+      const noise = ctx.createBufferSource(); noise.buffer = buffer; const ng = ctx.createGain(); ng.gain.setValueAtTime(0.4, t0); ng.gain.exponentialRampToValueAtTime(0.0001, t0+2.6);
+      const main = ctx.createGain(); main.gain.value = 0.9;
+      osc.connect(og); og.connect(main); noise.connect(ng); ng.connect(main); main.connect(ctx.destination);
+      osc.start(t0); noise.start(t0+0.05); osc.stop(t0+4.3); noise.stop(t0+2.7);
+      played = true;
+    }
+    function onFirstGesture(){ if (!played && audioEnabled) boom(); window.removeEventListener('pointerdown', onFirstGesture); }
+    window.addEventListener('pointerdown', onFirstGesture, { once: true });
+    try { setTimeout(boom, 400); } catch(e){}
+    if (btn) btn.addEventListener('click', function(){
+      audioEnabled = !audioEnabled;
+      if (audioEnabled && !played) { boom(); }
+      this.textContent = audioEnabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
+    });
+  })();
+</script>
+</body>
+                                                                                                                                                                                         </html>
